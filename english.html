@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Tracker & Exam</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config = { darkMode: 'class' }</script>
+</head>
+<body class="bg-red-50/30 dark:bg-slate-900 transition-colors duration-300 p-4 md:p-8 min-h-screen font-sans">
+
+    <button id="btn-theme" class="absolute top-6 right-6 p-3 bg-white dark:bg-slate-800 rounded-full shadow-md text-xl">🌓</button>
+
+    <main class="max-w-4xl mx-auto">
+        <a href="index.html" class="inline-block mb-6 text-red-600 dark:text-red-400 font-bold">← Kembali ke Menu Utama</a>
+        
+        <header class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 class="text-3xl font-extrabold text-red-900 dark:text-white mb-1">🇬🇧 Ruang Belajar English</h1>
+                <p class="text-slate-500 text-sm">Catat kosakata & grammar, atau uji kemampuanmu.</p>
+            </div>
+            <!-- Tombol Toggle Mode Ujian Otomatis -->
+            <button id="btn-exam-mode" class="py-2.5 px-5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl shadow-md transition-all">
+                🎯 Buka Mode Ujian Random
+            </button>
+        </header>
+
+        <!-- ================= BAGIAN 1: CATATAN UTAMA (DEFAULT) ================= -->
+        <div id="normal-view">
+            <!-- Form Input -->
+            <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border dark:border-slate-700 mb-8">
+                <div class="flex flex-col gap-4">
+                    <input type="text" id="input-title" placeholder="Kosakata / Rumus Grammar..." class="p-3 border rounded-xl dark:bg-slate-700 dark:text-white outline-none">
+                    <input type="text" id="input-note" placeholder="Arti atau contoh kalimat..." class="p-3 border rounded-xl dark:bg-slate-700 dark:text-white outline-none">
+                    <button id="btn-submit-english" class="py-3 px-6 bg-red-600 text-white font-bold rounded-xl hover:bg-red-700 transition-colors">Simpan Catatan</button>
+                </div>
+            </div>
+            <!-- Wadah Kartu Catatan -->
+            <div id="english-container" class="grid grid-cols-1 md:grid-cols-2 gap-5"></div>
+        </div>
+
+        <!-- ================= BAGIAN 2: MODE UJIAN OTOMATIS (RANDOM) ================= -->
+        <div id="exam-view" class="hidden">
+            <div class="bg-white dark:bg-slate-800 p-8 rounded-3xl shadow-xl border-2 border-amber-200 dark:border-slate-700 max-w-xl mx-auto text-center">
+                <div class="flex justify-between items-center mb-6">
+                    <span id="exam-score" class="text-sm font-bold bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300 px-3 py-1 rounded-full">Skor: 0</span>
+                    <span id="exam-category" class="text-xs font-semibold text-slate-400 uppercase tracking-wider">TOEFL Structure & Written Expression</span>
+                </div>
+
+                <!-- Pertanyaan Random -->
+                <h2 id="exam-question" class="text-xl font-bold text-slate-800 dark:text-white mb-6 leading-relaxed">
+                    Memuat soal...
+                </h2>
+
+                <!-- Pilihan Ganda -->
+                <div id="exam-options" class="flex flex-col gap-3 mb-6">
+                    <!-- Tombol pilihan opsi masuk lewat JavaScript -->
+                </div>
+
+                <!-- Keterangan / Pembahasan (Muncul setelah dijawab) -->
+                <div id="exam-feedback" class="hidden p-4 rounded-xl mb-6 text-sm font-medium"></div>
+
+                <!-- Tombol Soal Selanjutnya -->
+                <button id="btn-next-exam" class="hidden w-full py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-md">
+                    Soal Berikutnya ➔
+                </button>
+            </div>
+        </div>
+
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
