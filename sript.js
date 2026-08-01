@@ -16,7 +16,6 @@ if (btnTheme) {
         } else {
             localStorage.setItem('theme', 'light');
         }
-        // Muat ulang halaman agar warna grafik menyesuaikan mode gelap/terang
         location.reload();
     });
 }
@@ -77,7 +76,7 @@ if (streakCountElement) {
 }
 
 // ==========================================
-// 3. FITUR KALENDER, GRAFIK AKTIVITAS & PIE CHART
+// 3. KALENDER & GRAFIK (INDEX)
 // ==========================================
 const calendarDays = document.getElementById('calendar-days');
 const calendarMonthText = document.getElementById('calendar-month');
@@ -127,17 +126,16 @@ if (activityChart) {
     activityChart.innerHTML = chartHTML;
 }
 
-// Inisialisasi Chart.js (Grafik Lingkaran Perbandingan)
 const canvasCtx = document.getElementById('categoryChart');
 if (canvasCtx) {
     const isDark = htmlElement.classList.contains('dark');
     new Chart(canvasCtx, {
-        type: 'doughnut', // Model donat agar lebih modern
+        type: 'doughnut',
         data: {
             labels: ['Python Log', 'English Log'],
             datasets: [{
                 data: [pythonData.length, englishData.length],
-                backgroundColor: ['#3b82f6', '#ef4444'], // Biru (Python) & Merah (English)
+                backgroundColor: ['#3b82f6', '#ef4444'],
                 borderWidth: isDark ? 0 : 2
             }]
         },
@@ -147,10 +145,7 @@ if (canvasCtx) {
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: {
-                        color: isDark ? '#cbd5e1' : '#475569',
-                        font: { weight: 'bold', size: 12 }
-                    }
+                    labels: { color: isDark ? '#cbd5e1' : '#475569', font: { weight: 'bold', size: 12 } }
                 }
             }
         }
@@ -158,7 +153,7 @@ if (canvasCtx) {
 }
 
 // ==========================================
-// 4. FITUR BOOKMARK & EXPORT/IMPORT DATA
+// 4. BOOKMARK & BACKUP
 // ==========================================
 const bookmarkList = document.getElementById('bookmark-list');
 if (bookmarkList) {
@@ -175,7 +170,7 @@ if (bookmarkList) {
         }
         bookmarks.forEach((bm, idx) => {
             bookmarkList.innerHTML += `
-                <div class="group relative inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 dark:hover:bg-slate-600 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">
+                <div class="group relative inline-flex items-center gap-1 bg-slate-100 dark:bg-slate-700 hover:bg-blue-50 px-3 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-200 transition-colors">
                     <a href="${bm.url}" target="_blank" class="hover:text-blue-600">${bm.title} ↗</a>
                     <button onclick="deleteBookmark(${idx})" class="text-slate-400 hover:text-red-500 ml-1 font-bold">×</button>
                 </div>
@@ -193,14 +188,15 @@ if (bookmarkList) {
     const bmTitle = document.getElementById('bm-title');
     const bmUrl = document.getElementById('bm-url');
 
-    btnAddBm.addEventListener('click', () => {
-        if (!bmTitle.value || !bmUrl.value) return alert("Isi judul dan URL link!");
-        bookmarks.push({ title: bmTitle.value, url: bmUrl.value });
-        localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-        bmTitle.value = ''; bmUrl.value = '';
-        renderBookmarks();
-    });
-
+    if(btnAddBm && bmTitle && bmUrl) {
+        btnAddBm.addEventListener('click', () => {
+            if (!bmTitle.value || !bmUrl.value) return alert("Isi judul dan URL link!");
+            bookmarks.push({ title: bmTitle.value, url: bmUrl.value });
+            localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
+            bmTitle.value = ''; bmUrl.value = '';
+            renderBookmarks();
+        });
+    }
     renderBookmarks();
 }
 
@@ -208,7 +204,7 @@ const btnExport = document.getElementById('btn-export');
 const btnImport = document.getElementById('btn-import');
 if (btnExport) {
     btnExport.addEventListener('click', () => {
-        const dataToSave = { python: pythonData, english: englishData, streak: currentStreak, lastDate: lastStudyDate };
+        const dataToSave = { python: pythonData, english: englishData, streak: currentStreak, lastDate: lastStudyDate, bookmarks: JSON.parse(localStorage.getItem('bookmarks')) };
         const blob = new Blob([JSON.stringify(dataToSave)], { type: "application/json" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -227,9 +223,10 @@ if (btnImport) {
                 const importedData = JSON.parse(event.target.result);
                 if(importedData.python) localStorage.setItem('pythonData', JSON.stringify(importedData.python));
                 if(importedData.english) localStorage.setItem('englishData', JSON.stringify(importedData.english));
+                if(importedData.bookmarks) localStorage.setItem('bookmarks', JSON.stringify(importedData.bookmarks));
                 if(importedData.streak !== undefined) localStorage.setItem('currentStreak', importedData.streak);
                 if(importedData.lastDate) localStorage.setItem('lastStudyDate', importedData.lastDate);
-                alert("Berhasil memulihkan data! Halaman akan dimuat ulang.");
+                alert("Berhasil memulihkan data!");
                 location.reload();
             } catch(err) {
                 alert("File backup tidak valid!");
@@ -253,7 +250,7 @@ window.deleteItem = function(type, index) {
 }
 
 // ==========================================
-// 5. LOGIKA HALAMAN PYTHON
+// 5. PYTHON LOGIC
 // ==========================================
 const pythonContainer = document.getElementById('python-container');
 const searchPython = document.getElementById('search-python');
@@ -298,20 +295,22 @@ if (pythonContainer) {
     const inputNote = document.getElementById('input-note');
     const inputCode = document.getElementById('input-code');
 
-    btnSubmit.addEventListener('click', () => {
-        if (!inputTitle.value) return alert("Isi judul topik!");
-        pythonData.unshift({
-            title: inputTitle.value,
-            note: inputNote.value,
-            code: inputCode ? inputCode.value : '',
-            date: new Date().toLocaleDateString('id-ID')
+    if(btnSubmit) {
+        btnSubmit.addEventListener('click', () => {
+            if (!inputTitle || !inputTitle.value) return alert("Isi judul topik!");
+            pythonData.unshift({
+                title: inputTitle.value,
+                note: inputNote ? inputNote.value : '',
+                code: inputCode ? inputCode.value : '',
+                date: new Date().toLocaleDateString('id-ID')
+            });
+            localStorage.setItem('pythonData', JSON.stringify(pythonData));
+            recordStudySession();
+            recordActivityHistory();
+            inputTitle.value = ''; if(inputNote) inputNote.value = ''; if(inputCode) inputCode.value = '';
+            renderPython(searchPython ? searchPython.value : '');
         });
-        localStorage.setItem('pythonData', JSON.stringify(pythonData));
-        recordStudySession();
-        recordActivityHistory();
-        inputTitle.value = ''; inputNote.value = ''; if(inputCode) inputCode.value = '';
-        renderPython(searchPython ? searchPython.value : '');
-    });
+    }
 
     if(searchPython) {
         searchPython.addEventListener('input', (e) => renderPython(e.target.value));
@@ -320,7 +319,7 @@ if (pythonContainer) {
 }
 
 // ==========================================
-// 6. LOGIKA HALAMAN ENGLISH & MODE UJIAN
+// 6. ENGLISH LOGIC & EXAM
 // ==========================================
 const englishContainer = document.getElementById('english-container');
 if (englishContainer) {
@@ -346,19 +345,21 @@ if (englishContainer) {
         });
     }
 
-    btnSubmit.addEventListener('click', () => {
-        if (!inputTitle.value || !inputNote.value) return alert("Isi form dengan lengkap!");
-        englishData.unshift({
-            title: inputTitle.value,
-            note: inputNote.value,
-            date: new Date().toLocaleDateString('id-ID')
+    if(btnSubmit) {
+        btnSubmit.addEventListener('click', () => {
+            if (!inputTitle || !inputTitle.value || !inputNote || !inputNote.value) return alert("Isi form dengan lengkap!");
+            englishData.unshift({
+                title: inputTitle.value,
+                note: inputNote.value,
+                date: new Date().toLocaleDateString('id-ID')
+            });
+            localStorage.setItem('englishData', JSON.stringify(englishData));
+            recordStudySession();
+            recordActivityHistory();
+            inputTitle.value = ''; inputNote.value = '';
+            renderEnglish();
         });
-        localStorage.setItem('englishData', JSON.stringify(englishData));
-        recordStudySession();
-        recordActivityHistory();
-        inputTitle.value = ''; inputNote.value = '';
-        renderEnglish();
-    });
+    }
     renderEnglish();
 
     const bankSoal = [
@@ -373,18 +374,6 @@ if (englishContainer) {
             options: ["does", "doesn't", "is", "isn't"],
             answer: "doesn't",
             explanation: "Bentuk Question Tag. Kalimat utamanya positif ('speaks') & Present Simple, maka tag-nya menggunakan 'doesn't'."
-        },
-        {
-            q: "If I _____ about the heavy traffic, I would have taken another route.",
-            options: ["know", "knew", "had known", "have known"],
-            answer: "had known",
-            explanation: "Conditional Sentence Tipe 3. Rumus: If + Past Perfect (had + V3), would have + V3."
-        },
-        {
-            q: "The new software update allows users _____ files much faster.",
-            options: ["download", "to download", "downloading", "downloaded"],
-            answer: "to download",
-            explanation: "Kata kerja 'allow' diikuti objek dan to-infinitive (allow someone to do something)."
         }
     ];
 
@@ -406,8 +395,8 @@ if (englishContainer) {
         btnExamMode.addEventListener('click', () => {
             isExamActive = !isExamActive;
             if (isExamActive) {
-                normalView.classList.add('hidden');
-                examView.classList.remove('hidden');
+                if(normalView) normalView.classList.add('hidden');
+                if(examView) examView.classList.remove('hidden');
                 btnExamMode.textContent = "🔙 Kembali ke Catatan";
                 btnExamMode.classList.replace('bg-amber-500', 'bg-slate-600');
                 
@@ -416,8 +405,8 @@ if (englishContainer) {
                 score = 0;
                 loadExamQuestion();
             } else {
-                normalView.classList.remove('hidden');
-                examView.classList.add('hidden');
+                if(normalView) normalView.classList.remove('hidden');
+                if(examView) examView.classList.add('hidden');
                 btnExamMode.textContent = "🎯 Buka Mode Ujian Random";
                 btnExamMode.classList.replace('bg-slate-600', 'bg-amber-500');
             }
@@ -427,18 +416,18 @@ if (englishContainer) {
     function loadExamQuestion() {
         if (!examOptions) return;
         examOptions.innerHTML = '';
-        examFeedback.classList.add('hidden');
-        btnNextExam.classList.add('hidden');
+        if(examFeedback) examFeedback.classList.add('hidden');
+        if(btnNextExam) btnNextExam.classList.add('hidden');
 
         if (currentQuestionIndex >= shuffledSoal.length) {
-            examQuestion.textContent = `🎉 Ujian Selesai! Skor Akhir Kamu: ${score} dari ${bankSoal.length * 10}`;
+            if(examQuestion) examQuestion.textContent = `🎉 Ujian Selesai! Skor Akhir Kamu: ${score}`;
             examOptions.innerHTML = `<button onclick="location.reload()" class="py-3 bg-blue-600 text-white font-bold rounded-xl">Ulangi Ujian</button>`;
             return;
         }
 
         const current = shuffledSoal[currentQuestionIndex];
-        examQuestion.textContent = `${currentQuestionIndex + 1}. ${current.q}`;
-        examScoreEl.textContent = `Skor: ${score}`;
+        if(examQuestion) examQuestion.textContent = `${currentQuestionIndex + 1}. ${current.q}`;
+        if(examScoreEl) examScoreEl.textContent = `Skor: ${score}`;
 
         current.options.forEach(opt => {
             const btn = document.createElement('button');
@@ -456,20 +445,24 @@ if (englishContainer) {
         if (selected === correct) {
             selectedBtn.classList.replace('border', 'bg-green-100 border-green-500 text-green-800');
             score += 10;
-            examFeedback.textContent = "✅ Benar! " + explanation;
-            examFeedback.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+            if(examFeedback) {
+                examFeedback.textContent = "✅ Benar! " + explanation;
+                examFeedback.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-green-50 text-green-800 dark:bg-green-900/30 dark:text-green-300";
+            }
         } else {
             selectedBtn.classList.replace('border', 'bg-red-100 border-red-500 text-red-800');
             allButtons.forEach(b => {
                 if (b.textContent === correct) b.classList.replace('border', 'bg-green-100 border-green-500 text-green-800');
             });
-            examFeedback.textContent = "❌ Kurang tepat. " + explanation;
-            examFeedback.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+            if(examFeedback) {
+                examFeedback.textContent = "❌ Kurang tepat. " + explanation;
+                examFeedback.className = "p-4 rounded-xl mb-6 text-sm font-medium bg-red-50 text-red-800 dark:bg-red-900/30 dark:text-red-300";
+            }
         }
 
-        examFeedback.classList.remove('hidden');
-        btnNextExam.classList.remove('hidden');
-        examScoreEl.textContent = `Skor: ${score}`;
+        if(examFeedback) examFeedback.classList.remove('hidden');
+        if(btnNextExam) btnNextExam.classList.remove('hidden');
+        if(examScoreEl) examScoreEl.textContent = `Skor: ${score}`;
     }
 
     if (btnNextExam) {
