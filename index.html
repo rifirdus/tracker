@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu Utama | Learning Tracker</title>
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config = { darkMode: 'class' }</script>
-    <!-- Chart.js Library untuk Grafik -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 transition-colors duration-300 min-h-screen flex items-center justify-center p-4 font-sans py-10">
@@ -39,11 +37,10 @@
             <div id="activity-chart" class="flex justify-between items-center gap-2"></div>
         </div>
 
-        <!-- STATISTIK PERBANDINGAN KATEGORI (PIE CHART) -->
+        <!-- PIE CHART DISTRIBUSI -->
         <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-slate-200 dark:border-slate-700 mb-6 transition-colors">
             <h3 class="font-extrabold text-slate-700 dark:text-slate-200 mb-4 text-sm uppercase tracking-wider text-left">Distribusi Catatan Belajar</h3>
             <div class="w-full max-w-xs mx-auto h-64 flex justify-center items-center">
-                <!-- Kanvas Grafik Lingkaran -->
                 <canvas id="categoryChart"></canvas>
             </div>
         </div>
